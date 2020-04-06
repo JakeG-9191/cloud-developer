@@ -32,7 +32,7 @@ import { filterImageFromURL, deleteLocalFiles } from './util/util';
 
   app.get('/filteredimage', async (req, res) => {
     // store a users imageUrl as myImageUrl, provided in query paramaters
-    const myImageUrl = req.query.imageUrl;
+    const myImageUrl = req.query.image_url;
 
     // if image has problems, a 400 will be returned with a message about a broken image or incomplete url
     if (!myImageUrl) {
@@ -46,9 +46,13 @@ import { filterImageFromURL, deleteLocalFiles } from './util/util';
     // once the image is shown, it is deleted after to clear up space
     try {
       const filteredImageFromURL = await filterImageFromURL(myImageUrl);
-      res.sendFile(filteredImageFromURL, () =>
-        deleteLocalFiles([filteredImageFromURL])
-      );
+      if (filteredImageFromURL) {
+        res
+          .status(200)
+          .sendFile(filteredImageFromURL, () =>
+            deleteLocalFiles([filteredImageFromURL])
+          );
+      }
     } catch (error) {
       // if there is an error, returns a status of 422 (not processesable) and a message about a broken image or incomplete url
       return res.sendStatus(422).send({
